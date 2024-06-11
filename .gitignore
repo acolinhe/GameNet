@@ -1,0 +1,21 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Output of the build
+bin/
+out/
+
+# IDE
+.idea/
+*.iml
+
+# Dependency directories
+vendor/
+
+# OS specific
+.DS_Store
+Thumbs.db
