@@ -1,0 +1,7 @@
+services:
+  app:
+    build:
+      # catches the Dockerfile for Golang in root
+      context: .
+    ports:
+      - "8080:8080"
