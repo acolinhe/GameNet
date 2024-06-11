@@ -1,28 +1,17 @@
-# Project will be using GoLang 1.22
-FROM golang:1.22 as builder
+# Use the official Golang image
+FROM golang:1.22.4
 
-# Working directory inside of Docker Container
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy mod and sum files to Docker Container
+# Copy the go.mod and go.sum files to the container
 COPY go.mod go.sum ./
 
-# Downloads Go dependencies if not already existing
+# Download the Go dependencies
 RUN go mod download
 
-# Copy source from current dir to working dir
+# Copy the source code to the container
 COPY . .
 
-# Build Go app
-RUN go build -o gamenet cmd/gamenet/main.go
-
-# New stage created
-FROM alpine:latest
-
-WORKDIR /root/
-
-# Prebuilt binary file from previous stage
-COPY --from=builder /app/gamenet .
-
-# Now the final command to run everythering
-CMD ["./gamenet"]
+# Command to run the Go application
+CMD ["go", "run", "cmd/gamenet/main.go"]

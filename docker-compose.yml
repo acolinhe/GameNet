@@ -1,7 +1,13 @@
 services:
   app:
     build:
-      # catches the Dockerfile for Golang in root
       context: .
+    container_name: GameNet
     ports:
       - "8080:8080"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: ["go", "run", "cmd/gamenet/main.go"]
+
+  # will need to be changed when more docker files added
