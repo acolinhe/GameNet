@@ -13,5 +13,14 @@ RUN go mod download
 # Copy the source code to the container
 COPY . .
 
+# Install godotenv
+RUN go get github.com/joho/godotenv
+
+# Copy the .env file to the container
+COPY .env .env
+
+# Build the Go application
+RUN go build -o main ./cmd/gamenet
+
 # Command to run the Go application
-CMD ["go", "run", "cmd/gamenet/main.go"]
+CMD ["./main"]
