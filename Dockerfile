@@ -16,7 +16,7 @@ COPY . .
 # Install godotenv
 RUN go get github.com/joho/godotenv
 
-# Copy the .env file to the container
+# Copy the .env file to the container (if needed for build or runtime)
 COPY .env .env
 
 # Build the Go application

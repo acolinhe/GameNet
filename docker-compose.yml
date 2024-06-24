@@ -10,7 +10,10 @@ services:
     working_dir: /app
     command: ["go", "run", "cmd/gamenet/main.go"]
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
     env_file:
       - .env
 
@@ -21,11 +24,32 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASS}
       POSTGRES_DB: ${GAMENET_DB}
-      POSTGRES_HOST_AUTH_METHOD: "trust"
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  neo4j:
+    image: neo4j:latest
+    container_name: gamenet_neo4j
+    environment:
+      NEO4J_AUTH: ${NEO4J_USER}/${NEO4J_PASS}
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "cypher-shell -u ${NEO4J_USER} -p ${NEO4J_PASS} 'RETURN 1'"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres_data:
+  neo4j_data:
