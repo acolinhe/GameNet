@@ -22,3 +22,6 @@ Thumbs.db
 
 # ENV
 .env
+
+# Secrets YAML file
+postgres-secrets.yaml

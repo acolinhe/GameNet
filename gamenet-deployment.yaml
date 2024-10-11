@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gamenet-deployment
+spec:
+  replicas: 3  # Number of instances for scaling
+  selector:
+    matchLabels:
+      app: gamenet
+  template:
+    metadata:
+      labels:
+        app: gamenet
+    spec:
+      containers:
+        - name: gamenet
+          image: your-dockerhub-username/gamenet:latest  # Replace with your Docker image
+          ports:
+            - containerPort: 8080
+          env:
+            - name: POSTGRES_DB_HOST
+              value: "postgres-service"  # Name of PostgreSQL service
+            - name: POSTGRES_DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_USER
+            - name: POSTGRES_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB_NAME
+              value: "gamenetdb"
+            - name: POSTGRES_DB_PORT
+              value: "5432"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 20

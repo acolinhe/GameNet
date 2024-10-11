@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/lib/pq" // PostgreSQL driver
+	"os"
 	"time"
 )
 
@@ -19,24 +20,28 @@ const (
 // InitPostgres initializes a connection to the PostgreSQL database and configures connection pooling.
 // It returns the *sql.DB object representing the connection and an error if any.
 func InitPostgres() (*sql.DB, error) {
-	// Connection string with credentials for PostgreSQL connection
-	connStr := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+	host := os.Getenv("POSTGRES_DB_HOST")
+	user := os.Getenv("POSTGRES_DB_USER")
+	password := os.Getenv("POSTGRES_DB_PASSWORD")
+	dbname := os.Getenv("POSTGRES_DB_NAME")
+	port := os.Getenv("POSTGRES_DB_PORT")
+
+	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 
-	// Open a new database connection using the PostgreSQL driver
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open PostgreSQL connection: %v", err)
+		return nil, err
 	}
 
-	// Configure connection pool settings
-	db.SetMaxOpenConns(10)                  // Maximum number of open connections
-	db.SetMaxIdleConns(5)                   // Maximum number of idle connections
-	db.SetConnMaxLifetime(30 * time.Minute) // Maximum connection lifetime
+	// Set connection pooling options
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(5)
+	db.SetConnMaxLifetime(30 * time.Minute)
 
-	// Test the connection to make sure it's active
+	// Test the connection
 	if err := db.Ping(); err != nil {
-		return nil, fmt.Errorf("failed to connect to PostgreSQL: %v", err)
+		return nil, err
 	}
 
 	fmt.Println("Successfully connected to PostgreSQL!")
